@@ -2,8 +2,8 @@ pipeline {
     agent any
     
     environment {
+        MSTEAMS_WEBHOOK = credentials('https://telkomuniversityofficial.webhook.office.com/webhookb2/d6ddeea1-4893-439a-b3a0-a21925537374@90affe0f-c2a3-4108-bb98-6ceb4e94ef15/JenkinsCI/d329faba1d3a4c31ae7b2ed821651636/1fb3b8c7-9026-4a56-ab45-a09a477ff8f8/V2fiPsEwHjaHFI1bpY5v92Qe81w84JvWznwUxFwXN1Krc1')
         GITHUB_REPO = 'https://github.com/Bagasadhe27/Qazir-Tubes.git/'
-        MS_TEAMS_WEBHOOK = credentials('https://telkomuniversityofficial.webhook.office.com/webhookb2/d6ddeea1-4893-439a-b3a0-a21925537374@90affe0f-c2a3-4108-bb98-6ceb4e94ef15/JenkinsCI/d329faba1d3a4c31ae7b2ed821651636/1fb3b8c7-9026-4a56-ab45-a09a477ff8f8/V2fiPsEwHjaHFI1bpY5v92Qe81w84JvWznwUxFwXN1Krc1')
     }
     
     triggers {
@@ -17,43 +17,89 @@ pipeline {
                     $class: 'GitSCM',
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
-                        url: env.GITHUB_REPO,
-                        credentialsId: 'github-creds'
+                        url: "${GITHUB_REPO}",
+                        credentialsId: 'github-credentials'
                     ]]
                 ])
                 
-                script {
-                    notifyTeams("🔄 Starting CI/CD Pipeline")
-                }
+                office365ConnectorSend message: "🔄 Starting CI/CD pipeline for ${env.JOB_NAME}",
+                    status: "Started",
+                    webhookUrl: "${MSTEAMS_WEBHOOK}"
             }
         }
-
+        
         stage('Build') {
             steps {
                 script {
-                    notifyTeams("🛠 Building Project")
-                    sh 'chmod +x ./build.sh'
-                    sh './build.sh'
+                    try {
+                        sh '''
+                            echo "Building application..."
+                            # Add your build commands here
+                            npm install
+                            npm run build
+                        '''
+                        
+                        office365ConnectorSend message: "✅ Build stage successful",
+                            status: "Build Success",
+                            color: "05b222",
+                            webhookUrl: "${MSTEAMS_WEBHOOK}"
+                    } catch (Exception e) {
+                        office365ConnectorSend message: "❌ Build stage failed: ${e.getMessage()}",
+                            status: "Build Failed",
+                            color: "d00000",
+                            webhookUrl: "${MSTEAMS_WEBHOOK}"
+                        throw e
+                    }
                 }
             }
         }
-
+        
         stage('Test') {
             steps {
                 script {
-                    notifyTeams("🧪 Running Tests")
-                    sh 'chmod +x ./test.sh'
-                    sh './test.sh'
+                    try {
+                        sh '''
+                            echo "Running tests..."
+                            # Add your test commands here
+                            npm test
+                        '''
+                        
+                        office365ConnectorSend message: "✅ Test stage successful",
+                            status: "Tests Passed",
+                            color: "05b222",
+                            webhookUrl: "${MSTEAMS_WEBHOOK}"
+                    } catch (Exception e) {
+                        office365ConnectorSend message: "❌ Test stage failed: ${e.getMessage()}",
+                            status: "Tests Failed",
+                            color: "d00000",
+                            webhookUrl: "${MSTEAMS_WEBHOOK}"
+                        throw e
+                    }
                 }
             }
         }
-
+        
         stage('Deploy') {
             steps {
                 script {
-                    notifyTeams("🚀 Deploying to Production")
-                    sh 'chmod +x ./deploy.sh'
-                    sh './deploy.sh'
+                    try {
+                        sh '''
+                            echo "Deploying application..."
+                            # Add your deployment commands here
+                            npm run deploy
+                        '''
+                        
+                        office365ConnectorSend message: "✅ Deployment successful",
+                            status: "Deployed",
+                            color: "05b222",
+                            webhookUrl: "${MSTEAMS_WEBHOOK}"
+                    } catch (Exception e) {
+                        office365ConnectorSend message: "❌ Deployment failed: ${e.getMessage()}",
+                            status: "Deploy Failed",
+                            color: "d00000",
+                            webhookUrl: "${MSTEAMS_WEBHOOK}"
+                        throw e
+                    }
                 }
             }
         }
@@ -61,46 +107,16 @@ pipeline {
     
     post {
         success {
-            script {
-                notifyTeams("✅ Pipeline Successful!")
-            }
+            office365ConnectorSend message: "✅ Pipeline completed successfully!",
+                status: "Success",
+                color: "05b222",
+                webhookUrl: "${MSTEAMS_WEBHOOK}"
         }
         failure {
-            script {
-                notifyTeams("❌ Pipeline Failed!")
-            }
+            office365ConnectorSend message: "❌ Pipeline failed! Check Jenkins console for details.",
+                status: "Failed",
+                color: "d00000",
+                webhookUrl: "${MSTEAMS_WEBHOOK}"
         }
     }
-}
-
-def notifyTeams(String message) {
-    def payload = """
-    {
-        "@type": "MessageCard",
-        "@context": "http://schema.org/extensions",
-        "themeColor": "0076D7",
-        "summary": "${message}",
-        "sections": [{
-            "activityTitle": "${message}",
-            "facts": [
-                {
-                    "name": "Job",
-                    "value": "${env.JOB_NAME}"
-                },
-                {
-                    "name": "Build",
-                    "value": "${env.BUILD_NUMBER}"
-                },
-                {
-                    "name": "Branch",
-                    "value": "${env.GIT_BRANCH}"
-                }
-            ]
-        }]
-    }
-    """
-    
-    sh """
-        curl -H 'Content-Type: application/json' -d '${payload}' ${MS_TEAMS_WEBHOOK}
-    """
 }
