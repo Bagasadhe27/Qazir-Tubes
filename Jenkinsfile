@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        // Teams webhook URL (disimpan sebagai credential di Jenkins)
-        TEAMS_WEBHOOK = credentials('https://telkomuniversityofficial.webhook.office.com/webhookb2/d6ddeea1-4893-439a-b3a0-a21925537374@90affe0f-c2a3-4108-bb98-6ceb4e94ef15/JenkinsCI/d329faba1d3a4c31ae7b2ed821651636/1fb3b8c7-9026-4a56-ab45-a09a477ff8f8/V2fiPsEwHjaHFI1bpY5v92Qe81w84JvWznwUxFwXN1Krc1') // Pastikan ID credential ini benar
-        // Informasi Project
+        // Power Automate webhook URL (simpan di Jenkins credentials)
+        TEAMS_WEBHOOK = credentials('https://telkomuniversityofficial.webhook.office.com/webhookb2/d6ddeea1-4893-439a-b3a0-a21925537374@90affe0f-c2a3-4108-bb98-6ceb4e94ef15/JenkinsCI/d329faba1d3a4c31ae7b2ed821651636/1fb3b8c7-9026-4a56-ab45-a09a477ff8f8/V2fiPsEwHjaHFI1bpY5v92Qe81w84JvWznwUxFwXN1Krc1') // ID credentials untuk webhook Power Automate
         PROJECT_NAME = 'Qazir-Tubes'
     }
 
@@ -13,21 +12,15 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Notifikasi start build
-                        office365ConnectorSend webhookUrl: "${TEAMS_WEBHOOK}",
-                            message: "${PROJECT_NAME} - Build Started",
-                            status: "Started",
-                            color: "0000FF",
-                            factDefinitions: [
-                                [name: "Build Number", template: "${env.BUILD_NUMBER}"],
-                                [name: "Started By", template: "${currentBuild.rawBuild.getCause(hudson.model.Cause$UserIdCause)?.userId ?: 'Unknown'}"]
-                            ]
+                        // Kirim notifikasi awal build
+                        sendTeamsNotification("Build Started", "0000FF")
 
                         // Proses build
                         sh 'npm install'
                         sh 'npm run build'
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
+                        sendTeamsNotification("Build Failed", "FF0000")
                         throw e
                     }
                 }
@@ -38,16 +31,14 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Notifikasi testing dimulai
-                        office365ConnectorSend webhookUrl: "${TEAMS_WEBHOOK}",
-                            message: "${PROJECT_NAME} - Testing Phase",
-                            status: "Testing",
-                            color: "FFFF00"
+                        // Kirim notifikasi testing dimulai
+                        sendTeamsNotification("Testing Phase", "FFFF00")
 
                         // Proses testing
                         sh 'npm run test'
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
+                        sendTeamsNotification("Testing Failed", "FF0000")
                         throw e
                     }
                 }
@@ -58,11 +49,8 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Notifikasi deployment dimulai
-                        office365ConnectorSend webhookUrl: "${TEAMS_WEBHOOK}",
-                            message: "${PROJECT_NAME} - Deployment Started",
-                            status: "Deploying",
-                            color: "FFA500"
+                        // Kirim notifikasi deployment dimulai
+                        sendTeamsNotification("Deployment Started", "FFA500")
 
                         // Proses deployment
                         sh 'docker build -t myapp .'
@@ -70,6 +58,7 @@ pipeline {
                         sh 'docker push my-docker-repo/myapp:latest'
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
+                        sendTeamsNotification("Deployment Failed", "FF0000")
                         throw e
                     }
                 }
@@ -79,25 +68,36 @@ pipeline {
 
     post {
         success {
-            office365ConnectorSend webhookUrl: "${TEAMS_WEBHOOK}",
-                message: "${PROJECT_NAME} - Pipeline Successful",
-                status: "Success",
-                color: "00FF00",
-                factDefinitions: [
-                    [name: "Build Duration", template: "${currentBuild.durationString}"],
-                    [name: "Build Number", template: "${env.BUILD_NUMBER}"]
-                ]
+            sendTeamsNotification("Pipeline Successful", "00FF00")
         }
-
         failure {
-            office365ConnectorSend webhookUrl: "${TEAMS_WEBHOOK}",
-                message: "${PROJECT_NAME} - Pipeline Failed",
-                status: "Failed",
-                color: "FF0000",
-                factDefinitions: [
-                    [name: "Failed Stage", template: "${env.STAGE_NAME ?: 'Unknown'}"],
-                    [name: "Build Duration", template: "${currentBuild.durationString}"]
-                ]
+            sendTeamsNotification("Pipeline Failed", "FF0000")
         }
     }
+}
+
+// Fungsi untuk mengirim notifikasi ke Teams menggunakan Power Automate Webhook
+def sendTeamsNotification(String message, String color) {
+    httpRequest(
+        url: env.TEAMS_WEBHOOK,
+        httpMode: 'POST',
+        contentType: 'APPLICATION_JSON',
+        requestBody: """{
+            "summary": "${env.PROJECT_NAME}",
+            "sections": [{
+                "activityTitle": "${env.PROJECT_NAME} - ${message}",
+                "activitySubtitle": "Build #${env.BUILD_NUMBER}",
+                "activityImage": "https://jenkins.io/images/logo-title-opengraph.png",
+                "facts": [{
+                    "name": "Status",
+                    "value": "${message}"
+                }, {
+                    "name": "Build URL",
+                    "value": "${env.BUILD_URL}"
+                }],
+                "markdown": true
+            }],
+            "themeColor": "${color}"
+        }"""
+    )
 }
