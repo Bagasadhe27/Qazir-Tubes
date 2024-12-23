@@ -16,7 +16,7 @@ pipeline {
                 }
             }
         }
-        stage('Build') {
+        stage('Kreco') {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                     sh 'echo "Building project..."'
