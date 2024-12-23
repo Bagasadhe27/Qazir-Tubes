@@ -53,7 +53,7 @@ class SaleController extends Controller
     public function create()
     {
         $sale = new Sale;
-        $sale->member_id = null;
+        // $sale->member_id = null;
         $sale->total_item = 0;
         $sale->total_price = 0;
         $sale->discount = 0;
@@ -70,7 +70,7 @@ class SaleController extends Controller
     public function store(Request $request)
     {
         $sale = Sale::findOrFail($request->id_sale);
-        $sale->member_id = $request->id_member;
+        // $sale->member_id = $request->id_member;
         $sale->total_item = $request->total_item;
         $sale->total_price = $request->total;
         $sale->payment = $request->pay;

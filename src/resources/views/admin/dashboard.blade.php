@@ -61,7 +61,7 @@
                 </div>
             </div>
             <!-- ./col -->
-            <div class="col-lg-3 col-6">
+            {{-- <div class="col-lg-3 col-6">
                 <!-- small box -->
                 <div class="small-box bg-danger">
                     <div class="inner">
@@ -75,7 +75,7 @@
                     <a href="{{ route('member.index') }}" class="small-box-footer">More info <i
                             class="fas fa-arrow-circle-right"></i></a>
                 </div>
-            </div>
+            </div> --}}
             <!-- ./col -->
         </div>
         <!-- /.row -->
@@ -92,7 +92,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <p class="text-center">
-                                    <strong>Sales: 1 Jan, 2014 - 30 Jul, 2014</strong>
+                                    <strong>Sales: 2 Des, 2024 - 30 Des, 2024</strong>
                                 </p>
 
                                 <div class="chart">

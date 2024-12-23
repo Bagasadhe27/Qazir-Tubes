@@ -70,12 +70,12 @@
                                     <p>Product</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            {{-- <li class="nav-item">
                                 <a href="{{ route('member.index') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Member</p>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li class="nav-item">
                                 <a href="{{ route('supplier.index') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
@@ -107,12 +107,12 @@
                                     <p>Purchase</p>
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            {{-- <li class="nav-item">
                                 <a href="{{ route('sale.index') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Sale</p>
                                 </a>
-                            </li>
+                            </li> --}}
                             <li class="nav-item">
                                 <a href="{{ route('transaction.index') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>

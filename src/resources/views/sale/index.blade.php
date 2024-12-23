@@ -18,7 +18,7 @@
                         <tr>
                             <th width="5%">No</th>
                             <th>Date</th>
-                            <th>Member Code</th>
+                            {{-- <th>Member Code</th> --}}
                             <th>Total Item</th>
                             <th>Total Price</th>
                             <th>Discount</th>
@@ -60,9 +60,9 @@
                     {
                         data: 'date'
                     },
-                    {
-                        data: 'member_code'
-                    },
+                    // {
+                    //     data: 'member_code'
+                    // },
                     {
                         data: 'total_item'
                     },
