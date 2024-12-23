@@ -17,14 +17,14 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building the project...'
-                // Tambahkan perintah build proyek Anda di sini
+                // Add your project build commands here
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                // Tambahkan perintah untuk menjalankan pengujian
+                // Add your test commands here
             }
         }
 
@@ -67,6 +67,7 @@ pipeline {
                 }
             }
         }
+    }
 
     post {
         always {
