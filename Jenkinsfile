@@ -3,9 +3,9 @@ pipeline {
     
     environment {
         // Teams webhook URL (simpan sebagai credential di Jenkins)
-        TEAMS_WEBHOOK = credentials('teams-webhook-url')
+        TEAMS_WEBHOOK = credentials('https://telkomuniversityofficial.webhook.office.com/webhookb2/d6ddeea1-4893-439a-b3a0-a21925537374@90affe0f-c2a3-4108-bb98-6ceb4e94ef15/JenkinsCI/d329faba1d3a4c31ae7b2ed821651636/1fb3b8c7-9026-4a56-ab45-a09a477ff8f8/V2fiPsEwHjaHFI1bpY5v92Qe81w84JvWznwUxFwXN1Krc1')
         // Informasi Project
-        PROJECT_NAME = 'My Project'
+        PROJECT_NAME = 'Qazir-Tubes'
         BUILD_CAUSE = currentBuild.getBuildCauses().toString()
     }
     
