@@ -20,6 +20,7 @@ create project laravel dengan docker
 setup package laravel
 # docker exec php_docker composer require laravel/breeze --dev
 # docker exec php_docker php artisan migrate
+# docker exec php_docker php artisan db:seed
 
 jika ingin menjalankan artisan maka gunakan -it (iterative)
 # docker exec -it php_docker php artisan breeze:install
