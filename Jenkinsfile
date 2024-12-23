@@ -9,7 +9,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo 'Cloning repository...'
-                git branch: 'main', url: 'https://github.com/username/repository.git' // Ganti dengan URL repository GitHub Anda
+                git branch: 'main', url: 'https://github.com/Bagasadhe27/Qazir-Tubes.git' // Ganti dengan URL repository GitHub Anda
             }
         }
         stage('Build') {
