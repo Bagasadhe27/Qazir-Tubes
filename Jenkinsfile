@@ -11,41 +11,50 @@ pipeline {
         }
         stage('Checkout') {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    git branch: 'main', url: 'https://github.com/Bagasadhe27/Qazir-Tubes.git'
-                }
+                git branch: 'main', url: 'https://github.com/Bagasadhe27/Qazir-Tubes.git'
             }
         }
-        stage('Kreco') {
+        stage('Build') {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh 'echo "Building project..."'
-                    sh 'exit 0'  // Force success
-                }
+                sh 'echo "Building project..."'
             }
         }
         stage('Test') {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh 'echo "Running tests..."'
-                    sh 'exit 0'  // Force success
-                }
+                sh 'echo "Running tests..."'
             }
         }
         stage('Post Actions') {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh 'echo "Executing post actions..."'
-                    sh 'exit 0'  // Force success
-                }
+                sh 'echo "Post deployment actions..."'
             }
         }
     }
     post {
-        always {
-            office365ConnectorSend webhookUrl: env.TEAMS_WEBHOOK,
-                message: "Pipeline completed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                status: currentBuild.result
+        success {
+            office365ConnectorSend(
+                webhookUrl: env.TEAMS_WEBHOOK,
+                message: """
+                    🟢 Build Successful
+                    Job: ${env.JOB_NAME}
+                    Build: #${env.BUILD_NUMBER}
+                    Duration: ${currentBuild.durationString}
+                """.stripIndent(),
+                color: '00ff00'
+            )
+        }
+        failure {
+            office365ConnectorSend(
+                webhookUrl: env.TEAMS_WEBHOOK,
+                message: """
+                    🔴 Build Failed
+                    Job: ${env.JOB_NAME}
+                    Build: #${env.BUILD_NUMBER}
+                    Duration: ${currentBuild.durationString}
+                    Error: ${currentBuild.description ?: 'Check console output'}
+                """.stripIndent(),
+                color: 'ff0000'
+            )
         }
     }
 }
