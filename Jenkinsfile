@@ -32,38 +32,41 @@ pipeline {
             steps {
                 echo 'Sending notification to Microsoft Teams...'
                 script {
-                    def status = currentBuild.result ?: 'SUCCESS'
-                    def message = """
-                    {
-                        "@type": "MessageCard",
-                        "@context": "https://schema.org/extensions",
-                        "summary": "Build Notification",
-                        "themeColor": "0076D7",
-                        "sections": [{
-                            "activityTitle": "Build Notification",
-                            "activitySubtitle": "Jenkins CI/CD Pipeline",
-                            "activityImage": "https://cdn-icons-png.flaticon.com/512/2267/2267908.png",
-                            "facts": [
-                                {"name": "Project:", "value": "Qazir-Tubes"},
-                                {"name": "Branch:", "value": "main"},
-                                {"name": "Status:", "value": "${status}"}
-                            ],
-                            "markdown": true
-                        }]
+                    try {
+                        def message = """
+                        {
+                            "@type": "MessageCard",
+                            "@context": "https://schema.org/extensions",
+                            "summary": "Build Notification",
+                            "themeColor": "0076D7",
+                            "title": "Jenkins Build Notification",
+                            "sections": [
+                                {
+                                    "activityTitle": "Build Success",
+                                    "activitySubtitle": "Pipeline Notification",
+                                    "facts": [
+                                        {"name": "Project", "value": "Qazir-Tubes"},
+                                        {"name": "Branch", "value": "main"},
+                                        {"name": "Status", "value": "Success"}
+                                    ],
+                                    "markdown": true
+                                }
+                            ]
+                        }
+                        """
+                        httpRequest(
+                            acceptType: 'APPLICATION_JSON',
+                            contentType: 'APPLICATION_JSON',
+                            httpMode: 'POST',
+                            requestBody: message,
+                            url: "${MS_TEAMS_WEBHOOK}"
+                        )
+                    } catch (Exception e) {
+                        echo "Failed to send notification: ${e.getMessage()}"
                     }
-                    """
-                    httpRequest(
-                        acceptType: 'APPLICATION_JSON',
-                        contentType: 'APPLICATION_JSON',
-                        httpMode: 'POST',
-                        requestBody: message,
-                        url: "${MS_TEAMS_WEBHOOK}",
-                        consoleLogResponseBody: true
-                    )
                 }
             }
         }
-    }
 
     post {
         always {
