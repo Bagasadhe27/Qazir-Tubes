@@ -16,26 +16,10 @@ pipeline {
                 }
             }
         }
-        stage('Build Project Docker') {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh 'echo "Building project..."'
-                    sh 'exit 0'  
-                }
-            }
-        }
         stage('Integrasi Microsoft teams') {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                     sh 'echo "Running tests..."'
-                    sh 'exit 0'  
-                }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                    sh 'echo "Executing post actions..."'
                     sh 'exit 0'  
                 }
             }

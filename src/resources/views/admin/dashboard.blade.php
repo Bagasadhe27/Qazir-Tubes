@@ -84,8 +84,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">Income Chart {{ tanggal_indonesia($start_date, false) }} -
-                            {{ tanggal_indonesia($end_date, false) }}</h5>
+                        <h5 class="card-title">Income Chart </h5>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
